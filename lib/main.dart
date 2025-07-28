@@ -31,6 +31,8 @@ class MyApp extends StatelessWidget {
         '/leave-request': (_) => const LeaveRequestScreen(),
         '/time-tracking': (_) => const TimeTrackingScreen(),
         '/employee-info': (_) => const EmployeeInfoScreen(),
+        '/admin': (_) => const AdminScreen(),
+        '/account-management': (_) => const AccountManagementScreen(),
       },
     );
   }
