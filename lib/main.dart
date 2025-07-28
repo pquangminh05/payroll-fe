@@ -7,6 +7,8 @@ import 'screens/qr_checkin_screen.dart';
 import 'screens/leave_request_screen.dart';
 import 'screens/time_tracking_screen.dart';
 import 'screens/employee_info_screen.dart';
+import 'screens/admin_screen.dart';
+import 'screens/account_management_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -20,7 +22,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'SQL Server Auth App',
       debugShowCheckedModeBanner: false,
-      initialRoute: '/login',
+      initialRoute: '/admin',
       routes: {
         '/login': (_) => const LoginScreen(),
         '/register': (_) => const RegisterScreen(),
