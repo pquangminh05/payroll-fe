@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import '../services/api_service.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -21,29 +21,22 @@ class _LoginScreenState extends State<LoginScreen> {
       _error = null;
     });
 
-    try {
-      final email = usernameController.text.trim();
-      final password = passwordController.text.trim();
+    final email = usernameController.text.trim();
+    final password = passwordController.text.trim();
 
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
+    final success = await ApiService.login(email, password);
 
+    if (success) {
       Navigator.pushReplacementNamed(context, '/home');
-    } on FirebaseAuthException catch (e) {
+    } else {
       setState(() {
-        _error = e.message;
-      });
-    } catch (e) {
-      setState(() {
-        _error = 'Đã có lỗi xảy ra. Vui lòng thử lại.';
-      });
-    } finally {
-      setState(() {
-        _isLoading = false;
+        _error = 'Login failed. Please check your credentials.';
       });
     }
+
+    setState(() {
+      _isLoading = false;
+    });
   }
 
   @override

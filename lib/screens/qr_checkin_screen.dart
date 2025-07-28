@@ -1,39 +1,34 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import '../services/api_service.dart';
 
-class QRCheckInScreen extends StatelessWidget {
+class QRCheckInScreen extends StatefulWidget {
   const QRCheckInScreen({super.key});
 
-  String _getDisplayName(User? user) {
-    if (user == null) return 'Người dùng';
+  @override
+  State<QRCheckInScreen> createState() => _QRCheckInScreenState();
+}
 
-    if (user.displayName != null && user.displayName!.isNotEmpty) {
-      String fullName = user.displayName!;
-      if (fullName.length > 10) {
-        return '${fullName.substring(0, 8)}...';
-      }
-      return fullName;
+class _QRCheckInScreenState extends State<QRCheckInScreen> {
+  String displayName = 'Người dùng';
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchUserInfo();
+  }
+
+  Future<void> _fetchUserInfo() async {
+    final token = '';
+    final info = await ApiService.getUserInfo(token);
+    if (info != null && info['displayName'] != null) {
+      setState(() {
+        displayName = info['displayName'];
+      });
     }
-
-    if (user.email != null && user.email!.isNotEmpty) {
-      String emailName = user.email!.split('@')[0];
-      if (emailName.isNotEmpty) {
-        String displayName =
-            emailName[0].toUpperCase() + emailName.substring(1).toLowerCase();
-        if (displayName.length > 10) {
-          return '${displayName.substring(0, 8)}...';
-        }
-        return displayName;
-      }
-    }
-
-    return 'Người dùng';
   }
 
   @override
   Widget build(BuildContext context) {
-    final user = FirebaseAuth.instance.currentUser;
-
     return Scaffold(
       backgroundColor: Color(0xFFC2CAD0),
       appBar: AppBar(
@@ -49,7 +44,7 @@ class QRCheckInScreen extends StatelessWidget {
         title: Row(
           children: [
             Text(
-              _getDisplayName(user),
+              displayName,
               style: TextStyle(
                 color: Colors.black,
                 fontSize: 16,
@@ -70,8 +65,7 @@ class QRCheckInScreen extends StatelessWidget {
           ),
           IconButton(
             icon: Icon(Icons.logout, color: Colors.black),
-            onPressed: () async {
-              await FirebaseAuth.instance.signOut();
+            onPressed: () {
               Navigator.pushReplacementNamed(context, '/login');
             },
           ),

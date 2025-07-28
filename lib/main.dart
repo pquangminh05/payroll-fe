@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'firebase_options.dart';
 
 import 'screens/login_screen.dart';
 import 'screens/register_screen.dart';
@@ -10,11 +8,7 @@ import 'screens/leave_request_screen.dart';
 import 'screens/time_tracking_screen.dart';
 import 'screens/employee_info_screen.dart';
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+void main() {
   runApp(const MyApp());
 }
 
@@ -24,7 +18,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Firebase Auth App',
+      title: 'SQL Server Auth App',
       debugShowCheckedModeBanner: false,
       initialRoute: '/login',
       routes: {

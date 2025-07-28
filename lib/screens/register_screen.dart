@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import '../services/api_service.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({Key? key}) : super(key: key);
@@ -25,17 +25,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
       return;
     }
 
-    try {
-      setState(() => _loading = true);
-      await FirebaseAuth.instance.createUserWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
+    setState(() => _loading = true);
+    final success = await ApiService.register(email, password);
+    setState(() => _loading = false);
+    if (success) {
       Navigator.pop(context); // quay lại login
-    } on FirebaseAuthException catch (e) {
-      _showError(e.message ?? "Lỗi không xác định");
-    } finally {
-      setState(() => _loading = false);
+    } else {
+      _showError("Đăng ký thất bại");
     }
   }
 

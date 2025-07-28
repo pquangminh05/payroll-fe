@@ -1,38 +1,32 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import '../services/api_service.dart';
 
-class EmployeeInfoScreen extends StatelessWidget {
+class EmployeeInfoScreen extends StatefulWidget {
   const EmployeeInfoScreen({Key? key}) : super(key: key);
 
-  String _getDisplayName(User? user) {
-    if (user == null) return 'Người dùng';
+  @override
+  State<EmployeeInfoScreen> createState() => _EmployeeInfoScreenState();
+}
 
-    if (user.displayName != null && user.displayName!.isNotEmpty) {
-      String fullName = user.displayName!;
-      if (fullName.length > 10) {
-        return '${fullName.substring(0, 8)}...';
-      }
-      return fullName;
-    }
+class _EmployeeInfoScreenState extends State<EmployeeInfoScreen> {
+  Map<String, dynamic>? userInfo;
 
-    if (user.email != null && user.email!.isNotEmpty) {
-      String emailName = user.email!.split('@')[0];
-      if (emailName.isNotEmpty) {
-        String displayName =
-            emailName[0].toUpperCase() + emailName.substring(1).toLowerCase();
-        if (displayName.length > 10) {
-          return '${displayName.substring(0, 8)}...';
-        }
-        return displayName;
-      }
-    }
-    return 'Người dùng';
+  @override
+  void initState() {
+    super.initState();
+    _fetchUserInfo();
+  }
+
+  Future<void> _fetchUserInfo() async {
+    final token = '';
+    final info = await ApiService.getUserInfo(token);
+    setState(() {
+      userInfo = info;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    final user = FirebaseAuth.instance.currentUser;
-
     return Scaffold(
       backgroundColor: Color(0xFFC2CAD0),
       appBar: AppBar(
@@ -62,7 +56,7 @@ class EmployeeInfoScreen extends StatelessWidget {
             ),
             SizedBox(width: 8),
             Text(
-              _getDisplayName(user),
+              userInfo?['displayName'] ?? 'Người dùng',
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 16,
@@ -87,8 +81,8 @@ class EmployeeInfoScreen extends StatelessWidget {
           ),
           IconButton(
             icon: Icon(Icons.logout, color: Colors.white),
-            onPressed: () async {
-              await FirebaseAuth.instance.signOut();
+            onPressed: () {
+              // Clear token/session if needed
               Navigator.pushReplacementNamed(context, '/login');
             },
           ),
@@ -148,19 +142,19 @@ class EmployeeInfoScreen extends StatelessWidget {
                       padding: EdgeInsets.symmetric(horizontal: 20),
                       child: Column(
                         children: [
-                          _buildInfoField('Mã:'),
+                          _buildInfoField('Mã:', userInfo?['id'] ?? ''),
                           SizedBox(height: 16),
-                          _buildInfoField('Họ và tên:'),
+                          _buildInfoField('Họ và tên:', userInfo?['displayName'] ?? ''),
                           SizedBox(height: 16),
-                          _buildInfoField('Số điện thoại:'),
+                          _buildInfoField('Số điện thoại:', userInfo?['phone'] ?? ''),
                           SizedBox(height: 16),
-                          _buildInfoField('Email:'),
+                          _buildInfoField('Email:', userInfo?['email'] ?? ''),
                           SizedBox(height: 16),
-                          _buildInfoField('Phòng ban:'),
+                          _buildInfoField('Phòng ban:', userInfo?['department'] ?? ''),
                           SizedBox(height: 16),
-                          _buildInfoField('Chức vụ:'),
+                          _buildInfoField('Chức vụ:', userInfo?['position'] ?? ''),
                           SizedBox(height: 16),
-                          _buildInfoField(''),
+                          _buildInfoField('', ''),
                           SizedBox(height: 20),
                         ],
                       ),
@@ -203,7 +197,7 @@ class EmployeeInfoScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildInfoField(String label) {
+  Widget _buildInfoField(String label, String value) {
     return Container(
       width: double.infinity,
       height: 50,
@@ -216,7 +210,7 @@ class EmployeeInfoScreen extends StatelessWidget {
         child: Align(
           alignment: Alignment.centerLeft,
           child: Text(
-            label,
+            '$label $value',
             style: TextStyle(
               color: Colors.white,
               fontSize: 16,

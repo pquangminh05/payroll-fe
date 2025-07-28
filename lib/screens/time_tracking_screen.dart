@@ -1,38 +1,54 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import '../services/api_service.dart';
 
-class TimeTrackingScreen extends StatelessWidget {
+class TimeTrackingScreen extends StatefulWidget {
   const TimeTrackingScreen({Key? key}) : super(key: key);
 
-  String _getDisplayName(User? user) {
-    if (user == null) return 'Người dùng';
+  @override
+  State<TimeTrackingScreen> createState() => _TimeTrackingScreenState();
+}
 
-    if (user.displayName != null && user.displayName!.isNotEmpty) {
-      String fullName = user.displayName!;
-      if (fullName.length > 10) {
-        return '${fullName.substring(0, 8)}...';
-      }
-      return fullName;
-    }
+class _TimeTrackingScreenState extends State<TimeTrackingScreen> {
+  String displayName = 'Người dùng';
+  List<Map<String, String>> attendanceRecords = [];
 
-    if (user.email != null && user.email!.isNotEmpty) {
-      String emailName = user.email!.split('@')[0];
-      if (emailName.isNotEmpty) {
-        String displayName =
-            emailName[0].toUpperCase() + emailName.substring(1).toLowerCase();
-        if (displayName.length > 10) {
-          return '${displayName.substring(0, 8)}...';
-        }
-        return displayName;
-      }
+  @override
+  void initState() {
+    super.initState();
+    _fetchUserInfo();
+    _fetchAttendanceRecords();
+  }
+
+  Future<void> _fetchUserInfo() async {
+    final token = '';
+    final info = await ApiService.getUserInfo(token);
+    if (info != null && info['displayName'] != null) {
+      setState(() {
+        displayName = info['displayName'];
+      });
     }
-    return 'Người dùng';
+  }
+
+  Future<void> _fetchAttendanceRecords() async {
+    // Replace with your API call to get attendance records
+    // Example:
+    // final records = await ApiService.getAttendanceRecords(token);
+    // setState(() { attendanceRecords = records; });
+    // For now, use static data
+    setState(() {
+      attendanceRecords = [
+        {'date': 'Ngày 26/6/2025', 'checkIn': 'Check-in: 8h00', 'checkOut': 'Check-out: 18h00'},
+        {'date': 'Ngày 25/6/2025', 'checkIn': 'Check-in: 8h15', 'checkOut': 'Check-out: 17h45'},
+        {'date': 'Ngày 24/6/2025', 'checkIn': 'Check-in: 7h55', 'checkOut': 'Check-out: 18h10'},
+        {'date': 'Ngày 23/6/2025', 'checkIn': 'Check-in: 8h05', 'checkOut': 'Check-out: 17h55'},
+        {'date': 'Ngày 22/6/2025', 'checkIn': 'Check-in: 8h00', 'checkOut': 'Check-out: 18h00'},
+        {'date': 'Ngày 21/6/2025', 'checkIn': 'Check-in: 8h10', 'checkOut': 'Check-out: 17h50'},
+      ];
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    final user = FirebaseAuth.instance.currentUser;
-
     return Scaffold(
       backgroundColor: Color(0xFFC2CAD0),
       appBar: AppBar(
@@ -62,7 +78,7 @@ class TimeTrackingScreen extends StatelessWidget {
             ),
             SizedBox(width: 8),
             Text(
-              _getDisplayName(user),
+              displayName,
               style: TextStyle(
                 color: Colors.black,
                 fontSize: 16,
@@ -87,8 +103,7 @@ class TimeTrackingScreen extends StatelessWidget {
           ),
           IconButton(
             icon: Icon(Icons.logout, color: Colors.black),
-            onPressed: () async {
-              await FirebaseAuth.instance.signOut();
+            onPressed: () {
               Navigator.pushReplacementNamed(context, '/login');
             },
           ),
@@ -128,46 +143,22 @@ class TimeTrackingScreen extends StatelessWidget {
 
                   // Attendance Records
                   Expanded(
-                    child: ListView(
+                    child: ListView.builder(
                       padding: EdgeInsets.symmetric(horizontal: 20),
-                      children: [
-                        _buildAttendanceRecord(
-                          date: 'Ngày 26/6/2025:',
-                          checkIn: 'Check-in: 8h00',
-                          checkOut: 'Check-out: 18h00',
-                        ),
-                        _buildDivider(),
-                        _buildAttendanceRecord(
-                          date: 'Ngày 25/6/2025:',
-                          checkIn: 'Check-in: 8h15',
-                          checkOut: 'Check-out: 17h45',
-                        ),
-                        _buildDivider(),
-                        _buildAttendanceRecord(
-                          date: 'Ngày 24/6/2025:',
-                          checkIn: 'Check-in: 7h55',
-                          checkOut: 'Check-out: 18h10',
-                        ),
-                        _buildDivider(),
-                        _buildAttendanceRecord(
-                          date: 'Ngày 23/6/2025:',
-                          checkIn: 'Check-in: 8h05',
-                          checkOut: 'Check-out: 17h55',
-                        ),
-                        _buildDivider(),
-                        _buildAttendanceRecord(
-                          date: 'Ngày 22/6/2025:',
-                          checkIn: 'Check-in: 8h00',
-                          checkOut: 'Check-out: 18h00',
-                        ),
-                        _buildDivider(),
-                        _buildAttendanceRecord(
-                          date: 'Ngày 21/6/2025:',
-                          checkIn: 'Check-in: 8h10',
-                          checkOut: 'Check-out: 17h50',
-                        ),
-                        SizedBox(height: 20),
-                      ],
+                      itemCount: attendanceRecords.length,
+                      itemBuilder: (context, index) {
+                        final record = attendanceRecords[index];
+                        return Column(
+                          children: [
+                            _buildAttendanceRecord(
+                              date: record['date'] ?? '',
+                              checkIn: record['checkIn'] ?? '',
+                              checkOut: record['checkOut'] ?? '',
+                            ),
+                            _buildDivider(),
+                          ],
+                        );
+                      },
                     ),
                   ),
                 ],
